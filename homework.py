@@ -2,6 +2,7 @@
 
 import logging
 import os
+import re
 import sys
 import time
 
@@ -53,16 +54,12 @@ def get_api_answer(current_timestamp):
     """Функция запроса к API."""
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
-    try:
-        raw_response = requests.get(ENDPOINT, headers=HEADERS, params=params)
-        if raw_response.status_code == 500:
-            raise Exception('Сервер не отвечает')
-        if raw_response.status_code != 200:
-            raise Exception('Ошибка при получении ответа от сервера')
-        response = raw_response.json()
-    except Exception as error:
-        log_message = f'Ошибка при отправке сообщения: {error}'
-        logger.error(log_message)
+    raw_response = requests.get(ENDPOINT, headers=HEADERS, params=params)
+    if raw_response.status_code == 500:
+        raise Exception('Сервер не отвечает')
+    if raw_response.status_code != 200:
+        raise Exception('Ошибка при получении ответа от сервера')
+    response = raw_response.json()
     return response
 
 
@@ -83,13 +80,6 @@ def parse_status(homework):
     if homework:
         homework_name = homework.get('homework_name')
         homework_status = homework.get('status')
-        try:
-            verdict = HOMEWORK_STATUSES[homework_status]
-            message = ('Изменился статус проверки работы "%s". %s' %
-                       (homework_name, verdict))
-        except Exception as error:
-            log_message = f'Нет ожидаемых ключей в ответе API: {error}'
-            logger.error(log_message)
         verdict = HOMEWORK_STATUSES[homework_status]
         message = ('Изменился статус проверки работы "%s". %s' %
                    (homework_name, verdict))
@@ -117,7 +107,8 @@ def main():
             response = get_api_answer(current_timestamp)
             homework = check_response(response)
             if check_tokens() is True:
-                if parse_status(homework):
+                if homework:
+                    homework = homework[0]
                     send_message(bot, parse_status(homework))
                     current_timestamp = int(time.time())
                     time.sleep(RETRY_TIME)
