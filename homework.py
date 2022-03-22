@@ -8,8 +8,14 @@ import requests
 import telegram
 from http import HTTPStatus
 
-from settings import *
-from exceptions import *
+from settings import (
+    PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID,
+    RETRY_TIME, ENDPOINT, HEADERS, HOMEWORK_STATUSES,
+    )
+from exceptions import (
+    SendMessageError, Status500Error,
+    UnknownStatusError, EmptyListError,
+    )
 
 if __name__ == '__main__':
     logger = logging.getLogger(__name__)
