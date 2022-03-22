@@ -11,11 +11,11 @@ from http import HTTPStatus
 from settings import (
     PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID,
     RETRY_TIME, ENDPOINT, HEADERS, HOMEWORK_STATUSES,
-    )
+)
 from exceptions import (
     SendMessageError, Status500Error,
     UnknownStatusError, EmptyListError,
-    )
+)
 
 if __name__ == '__main__':
     logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ def parse_status(homework):
         verdict = HOMEWORK_STATUSES[homework_status]
         message = (
             f'Изменился статус проверки работы "{homework_name}". {verdict}'
-            )
+        )
         return message
 
 
