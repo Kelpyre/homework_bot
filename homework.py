@@ -3,10 +3,10 @@
 import logging
 import sys
 import time
+from http import HTTPStatus
 
 import requests
 import telegram
-from http import HTTPStatus
 
 from settings import (
     PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID,
@@ -17,15 +17,7 @@ from exceptions import (
     UnknownStatusError, EmptyListError,
 )
 
-if __name__ == '__main__':
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.INFO,
-        format='%(asctime)s, %(levelname)s, %(name)s, %(message)s',
-        encoding='utf-8',
-    )
-    logger.addHandler(logging.StreamHandler())
+logger = logging.getLogger()
 
 
 def send_message(bot, message):
@@ -55,18 +47,15 @@ def get_api_answer(current_timestamp):
 
 def check_response(response):
     """Функция проверки ответа API."""
-    try:
-        response['homeworks']
-        response['current_date']
-    except KeyError as error:
-        log_message = f'В ответе сервера нет требуемых ключей: {error}'
-        logger.error(log_message)
-        raise EmptyListError(f'В ответе сервера нет требуемых ключей: {error}')
     homework = response['homeworks']
-    if isinstance(response, dict) and isinstance(homework, list):
-        return homework
-    else:
+    if 'homeworks' not in response or 'current_date' not in response:
+        log_message = 'В ответе сервера нет требуемых ключей'
+        logger.error(log_message)
+        raise EmptyListError('В ответе сервера нет требуемых ключей')
+    homework = response['homeworks']
+    if not isinstance(response, dict) or not isinstance(homework, list):
         raise TypeError('Тип объекта отличается от ожидаемого')
+    return homework
 
 
 def parse_status(homework):
@@ -93,7 +82,7 @@ def main():
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
     last_error = None
-    if check_tokens() is not True:
+    if check_tokens() is False:
         sys.exit('Возникла ошибка при проверке TOKENS')
     while True:
         try:
@@ -106,21 +95,31 @@ def main():
                 current_timestamp = current_date
             else:
                 log_message = 'Нет обновлений'
-                logging.debug(log_message)
+                logger.debug(log_message)
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
-            logging.error(message)
+            logger.error(message)
             if last_error is None:
                 send_message(bot, message)
-                last_error = error
-            else:
-                last_error = error
+            last_error = error
         finally:
             time.sleep(RETRY_TIME)
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        level=logging.INFO,
+        encoding='utf-8',
+    )
+    logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter(
+        '%(asctime)s, %(levelname)s, %(name)s, %(message)s',
+    )
+    logger.setLevel(logging.INFO)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
     try:
         main()
     except KeyboardInterrupt:
-        logging.info('Выполнение остановлено')
+        logger.info('Выполнение остановлено')
