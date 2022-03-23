@@ -17,7 +17,14 @@ from exceptions import (
     UnknownStatusError, EmptyListError,
 )
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter(
+    '%(asctime)s, %(levelname)s, %(name)s, %(message)s',
+)
+logger.setLevel(logging.INFO)
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 def send_message(bot, message):
@@ -111,14 +118,6 @@ if __name__ == '__main__':
         level=logging.INFO,
         encoding='utf-8',
     )
-    logger = logging.getLogger(__name__)
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter(
-        '%(asctime)s, %(levelname)s, %(name)s, %(message)s',
-    )
-    logger.setLevel(logging.INFO)
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
     try:
         main()
     except KeyboardInterrupt:
