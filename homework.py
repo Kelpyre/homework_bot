@@ -14,7 +14,7 @@ from settings import (
 )
 from exceptions import (
     SendMessageError, Status500Error,
-    UnknownStatusError, EmptyListError,
+    UnknownStatusError, EmptyResponseError,
 )
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ def check_response(response):
     if 'homeworks' not in response or 'current_date' not in response:
         log_message = 'В ответе сервера нет требуемых ключей'
         logger.error(log_message)
-        raise EmptyListError('В ответе сервера нет требуемых ключей')
+        raise EmptyResponseError('В ответе сервера нет требуемых ключей')
     homework = response['homeworks']
     if not isinstance(response, dict) or not isinstance(homework, list):
         raise TypeError('Тип объекта отличается от ожидаемого')

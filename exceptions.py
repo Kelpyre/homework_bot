@@ -19,7 +19,7 @@ class UnknownStatusError(Exception):
     pass
 
 
-class EmptyListError(KeyError):
+class EmptyResponseError(KeyError):
     """Исключение при получении пустого списка."""
 
     pass
