@@ -15,9 +15,10 @@ pip install -r requirements.txt
 python3 manage.py runserver
 ```
 
-Стек технологий:
+## Стек технологий:
 - Python 3.10
 - Django 2.2.16
 - Telegram
 
+## Авторы:
 Реализован Kelpyre, при поддержке код-ревьюеров и наставников Яндекс.Практикум.
